@@ -47,3 +47,14 @@ def adaptive_bot_session(session_id, n_events, human_delays, catalog=None, decoy
             df.loc[i, ["product_id", "category_code", "brand", "price"]] = df.loc[i - 2, ["product_id", "category_code", "brand", "price"]].values
             df.loc[i, "event_type"] = "view"
     return df
+
+def urgent_human_session(session_id, n_events, catalog, human_delays, refresh_prob=0.12):
+    jeda_cepat = np.quantile(human_delays, 0.25)
+    delays_cepat = human_delays[human_delays <= jeda_cepat]
+    delays = RNG.choice(delays_cepat, size=n_events - 1, replace=True)
+    df = _build_events(session_id, n_events, delays, catalog)
+    for i in range(1, len(df)):
+        if RNG.random() < refresh_prob:
+            df.loc[i, ["product_id", "category_code", "brand", "price"]] = df.loc[i - 1, ["product_id", "category_code", "brand", "price"]].values
+            df.loc[i, "event_type"] = "view"
+    return df
