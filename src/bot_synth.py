@@ -35,6 +35,11 @@ def jitter_bot_session(session_id, n_events=20, base_interval=0.6, jitter_std=0.
     return _build_events(session_id, n_events, delays, catalog)
 
 def adaptive_bot_session(session_id, n_events, human_delays, catalog=None, decoy_prob=0.08):
+    kategori_unik = catalog["category_code"].dropna().unique()
+    jumlah_pilih = min(int(RNG.integers(1, 4)), len(kategori_unik))
+    kategori_terpilih = RNG.choice(kategori_unik, size=jumlah_pilih, replace=False)
+    catalog = catalog[catalog["category_code"].isin(kategori_terpilih)].reset_index(drop=True)
+
     delays = RNG.choice(human_delays, size=n_events - 1, replace=True)
     df = _build_events(session_id, n_events, delays, catalog)
     for i in range(2, len(df)):
